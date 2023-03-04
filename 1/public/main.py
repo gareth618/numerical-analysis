@@ -1,5 +1,15 @@
 import numpy as np
 
+def fun1(u):
+    print(1 + u == 1)
+
+def fun2(u):
+    x = 10.0
+    y = u
+    z = u
+    print((x + y) + z == x + (y + z))
+    print((x * y) * z == x * (y * z))
+
 def strassen(a, b, nmin):
     n = len(a)
     if n == nmin:
@@ -45,5 +55,8 @@ b = np.array([
     [10, 12, 14, 16]
 ])
 
+u = 1e-15
+fun1(u)
+fun2(u)
 print(strassen(a, b, 2))
 print(a @ b)

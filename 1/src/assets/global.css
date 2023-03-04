@@ -1,0 +1,51 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --black: #222;
+  --white: #ddd;
+  --green: #77b255;
+}
+
+html {
+  line-height: 1.2;
+  font-family: 'Source Code Pro', monospace;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  margin: 3rem;
+  color: var(--white);
+  background-color: var(--black);
+}
+
+p, h1 {
+  margin: 0;
+}
+
+input {
+  padding: .25rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--black);
+  background-color: var(--white);
+  border: none;
+}
+
+input:focus {
+  outline: .25rem solid var(--green);
+}
+
+input::selection {
+  background-color: var(--green);
+}
+
+input:not(.arrows)::-webkit-outer-spin-button,
+input:not(.arrows)::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
