@@ -1,6 +1,6 @@
 <script>
 export default {
-  props: ['modelValue', 'disabled'],
+  props: ['modelValue', 'disabled', 'label'],
   emits: ['update:modelValue'],
   computed: {
     rows() {
@@ -28,18 +28,25 @@ export default {
 </script>
 
 <template>
-  <div class="matrix">
-    <input
-      v-for="[i, j] in cells()"
-      type="number"
-      :disabled="disabled"
-      :value="modelValue[i][j]"
-      @input="$emit('update:modelValue', updateMatrix(i, j, $event.target.value))"
-    />
-  </div>
+  <article>
+    <label>{{ label }}</label>
+    <div class="matrix">
+      <input
+        v-for="[i, j] in cells()"
+        type="number"
+        :disabled="disabled"
+        :value="modelValue[i][j]"
+        @input="$emit('update:modelValue', updateMatrix(i, j, $event.target.value))"
+      />
+    </div>
+  </article>
 </template>
 
 <style scoped>
+article {
+  min-width: 100px;
+}
+
 .matrix {
   display: grid;
   gap: .25rem;

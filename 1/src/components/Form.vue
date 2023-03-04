@@ -16,12 +16,11 @@ export default {
     dimension() {
       return Math.min(Math.max(this.inputDimension || 0, 2), 8);
     },
-    product() {
-      if (this.hasEmptyCells(this.matrix1)) return;
-      if (this.hasEmptyCells(this.matrix2)) return;
-      const pyMatrix1 = `np.array(${JSON.stringify(this.matrix1)})`;
-      const pyMatrix2 = `np.array(${JSON.stringify(this.matrix2)})`;
-      return JSON.parse(window.python(`strassen(${pyMatrix1}, ${pyMatrix2}, 2).tolist()`));
+    productStrassen() {
+      return this.product((matrix1, matrix2) => `strassen(${matrix1}, ${matrix2}, 2).tolist()`);
+    },
+    productNumpy() {
+      return this.product((matrix1, matrix2) => `(${matrix1} @ ${matrix2}).tolist()`);
     }
   },
   methods: {
@@ -42,6 +41,13 @@ export default {
         }
       }
       return false;
+    },
+    product(multiply) {
+      if (this.hasEmptyCells(this.matrix1)) return;
+      if (this.hasEmptyCells(this.matrix2)) return;
+      const pyMatrix1 = `np.array(${JSON.stringify(this.matrix1)})`;
+      const pyMatrix2 = `np.array(${JSON.stringify(this.matrix2)})`;
+      return JSON.parse(window.python(multiply(pyMatrix1, pyMatrix2)));
     }
   },
   watch: {
@@ -56,17 +62,21 @@ export default {
 <template>
   <main>
     <h1>Tema #1</h1>
-    <input
-      v-model="inputDimension"
-      class="arrows dimension"
-      type="number" min="2" max="8"
-    />
+    <article>
+      <label>Dimension</label>
+      <input
+        v-model="inputDimension"
+        class="dimension"
+        type="number" min="2" max="8"
+      />
+    </article>
     <div class="matrices">
-      <Matrix v-model="matrix1" />
-      <Matrix v-model="matrix2" />
+      <Matrix v-model="matrix1" label="Matrix #1" />
+      <Matrix v-model="matrix2" label="Matrix #2" />
     </div>
     <div class="matrices">
-      <Matrix v-if="product != null" v-model="product" :disabled="true" />
+      <Matrix v-if="productStrassen != null" v-model="productStrassen" label="Strassen" :disabled="true" />
+      <Matrix v-if="productNumpy != null" v-model="productNumpy" label="NumPy" :disabled="true" />
       <p v-else>waiting for you to fill the cells</p>
     </div>
   </main>
