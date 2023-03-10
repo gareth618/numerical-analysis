@@ -14,6 +14,13 @@ def strassen(a, b, nmin):
     n = len(a)
     if n == nmin:
         return a @ b
+
+    padded = False
+    if n % 2 == 1:
+        n += 1
+        a = np.pad(a, pad_width=(0, 1))
+        b = np.pad(b, pad_width=(0, 1))
+        padded = True
     m = n // 2
 
     def divide(matrix):
@@ -39,6 +46,7 @@ def strassen(a, b, nmin):
     c[0:m, m:n] = p3 + p5
     c[m:n, 0:m] = p2 + p4
     c[m:n, m:n] = p1 + p3 - p2 + p6
+    if padded: c = c[0:-1, 0:-1]
     return c
 
 a = np.array([
