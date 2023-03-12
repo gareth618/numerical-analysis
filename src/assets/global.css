@@ -27,6 +27,13 @@ p, h1 {
   margin: 0;
 }
 
+button {
+  border: none;
+  outline: none;
+  background: none;
+  cursor: pointer;
+}
+
 input {
   padding: .25rem;
   font-size: 1rem;
