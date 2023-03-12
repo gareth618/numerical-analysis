@@ -38,6 +38,22 @@ def inverse_substitution(a, b):
         x[i] = b[i] - sum([a[j][i] * x[j] for j in range(i + 1, n)])
     return x
 
+def check(a, d):
+    n = len(a)
+    def get_ld(i, j):
+        if j < i: return d[j] * a[i][j]
+        if j == i: return d[j]
+        return 0
+    def get_lt(i, j):
+        if j < i: return 0
+        if j == i: return 1
+        return a[j][i]
+    for i in range(n):
+        for j in range(i, n):
+            a_ij = sum([get_ld(i, k) * get_lt(k, j) for k in range(n)])
+            if abs(a_ij - a[i][j]) > 1e-5: return False
+    return True
+
 a_init = np.array([
     [1.0, 2.5, 3.0],
     [2.5, 8.25, 15.5],
@@ -45,21 +61,26 @@ a_init = np.array([
 ])
 b = np.array([12, 38, 68])
 
-a, b = generate(3)
+a_init, b = generate(5)
 
 a, d = decompose(a_init)
-print(d)
+print('valid decomposition?', check(a, d))
+
+print('A\' =', a)
+print('D =', d)
+
 det = np.prod(d)
+print('det(A) =', det)
 
 z = direct_substitution(a, b)
 y = z / d
 x = inverse_substitution(a, y)
-print(x)
+print('x_chol =', x)
 
 p, l, u = la.lu(a_init)
 y = la.solve(l, p @ b)
 x = la.solve(u, y)
-print(x)
+print('x_lu =', x)
 
 norm = np.sqrt(sum([i * i for i in a_init @ x - b]))
-print(norm < 1e-8)
+print('norm(a_init @ x_chol - b) == 0?', norm < 1e-8)
