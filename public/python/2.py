@@ -6,11 +6,11 @@ def generate(n):
     for i in range(n):
         a[i][i] = np.random.uniform(0, 100)
         for j in range(i):
-            a[i][j] = a[j][i] = np.random.uniform(-100, 100)
+            a[i][j] = a[j][i] = np.random.uniform(-99, 100)
     for i in range(n):
         a[i][i] += sum([abs(x) for x in a[i]]) - abs(a[i][i])
-    b = np.random.rand(n)
-    return a, b
+    b = np.random.uniform(-99, 100, size=n)
+    return np.around(a, decimals=2), np.around(b, decimals=2)
 
 def decompose(a_init):
     n = len(a_init)
@@ -39,20 +39,38 @@ def inverse_substitution(a, b):
     return x
 
 def check(a, d):
-    n = len(a)
     def get_ld(i, j):
         if j < i: return d[j] * a[i][j]
         if j == i: return d[j]
         return 0
+
     def get_lt(i, j):
         if j < i: return 0
         if j == i: return 1
         return a[j][i]
+
+    n = len(a)
     for i in range(n):
         for j in range(i, n):
             a_ij = sum([get_ld(i, k) * get_lt(k, j) for k in range(n)])
-            if abs(a_ij - a[i][j]) > 1e-5: return False
+            if abs(a_ij - a[i][j]) > 1e-5:
+                return False
     return True
+
+def cholesky(a_init, b):
+    a, d = decompose(a_init)
+    print('valid decomposition?', check(a, d))
+    print('det(A) =', np.prod(d))
+    z = direct_substitution(a, b)
+    y = z / d
+    x = inverse_substitution(a, y)
+    return x
+
+def plu(a_init, b):
+    p, l, u = la.lu(a_init)
+    y = la.solve(l, p @ b)
+    x = la.solve(u, y)
+    return x
 
 a_init = np.array([
     [1.0, 2.5, 3.0],
@@ -63,24 +81,6 @@ b = np.array([12, 38, 68])
 
 a_init, b = generate(5)
 
-a, d = decompose(a_init)
-print('valid decomposition?', check(a, d))
-
-print('A\' =', a)
-print('D =', d)
-
-det = np.prod(d)
-print('det(A) =', det)
-
-z = direct_substitution(a, b)
-y = z / d
-x = inverse_substitution(a, y)
-print('x_chol =', x)
-
-p, l, u = la.lu(a_init)
-y = la.solve(l, p @ b)
-x = la.solve(u, y)
-print('x_lu =', x)
-
+x = cholesky(a_init, b)
 norm = np.sqrt(sum([i * i for i in a_init @ x - b]))
 print('norm(a_init @ x_chol - b) == 0?', norm < 1e-8)

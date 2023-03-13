@@ -10,7 +10,7 @@ export default {
   data() {
     return {
       runner: null,
-      code: null,
+      codes: [],
       ready: false,
       currentForm: 0,
       forms: [1, 2],

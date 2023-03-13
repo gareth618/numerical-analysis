@@ -43,19 +43,9 @@ export default {
 </template>
 
 <style scoped>
-article {
-  min-width: 100px;
-}
-
 .matrix {
   display: grid;
   gap: .25rem;
   grid-template-columns: repeat(v-bind(cols), 1fr);
-}
-
-input {
-  width: 2rem;
-  height: 2rem;
-  text-align: center;
 }
 </style>

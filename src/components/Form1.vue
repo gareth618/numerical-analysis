@@ -66,7 +66,6 @@ export default {
       <label>Dimension</label>
       <input
         v-model="inputDimension"
-        class="dimension"
         type="number" min="2" max="8"
       />
     </article>
@@ -98,14 +97,9 @@ h1 {
   text-underline-offset: .25em;
 }
 
-.dimension {
-  width: 7rem;
-  text-align: center;
-}
-
 .matrices {
   display: flex;
-  gap: 3rem;
+  gap: 3.75rem;
 }
 
 .matrices:deep(input) {
