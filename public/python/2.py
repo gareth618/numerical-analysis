@@ -1,6 +1,12 @@
 import numpy as np
 import scipy.linalg as la
 
+def is_diagonal_dominant(a):
+    for i in range(len(a)):
+        if a[i][i] <= sum([abs(x) for x in a[i]]) - abs(a[i][i]):
+            return False
+    return True
+
 def generate(n):
     a = np.zeros((n, n))
     for i in range(n):
@@ -9,8 +15,8 @@ def generate(n):
             a[i][j] = a[j][i] = np.random.uniform(-99, 100)
     for i in range(n):
         a[i][i] += sum([abs(x) for x in a[i]]) - abs(a[i][i])
-    b = np.random.uniform(-99, 100, size=n)
-    return np.around(a, decimals=2), np.around(b, decimals=2)
+    b = np.random.uniform(-99, 100, n)
+    return a, b
 
 def decompose(a_init):
     n = len(a_init)
@@ -38,7 +44,7 @@ def inverse_substitution(a, b):
         x[i] = b[i] - sum([a[j][i] * x[j] for j in range(i + 1, n)])
     return x
 
-def check(a, d):
+def check_decomposition(a, d):
     def get_ld(i, j):
         if j < i: return d[j] * a[i][j]
         if j == i: return d[j]
@@ -59,7 +65,7 @@ def check(a, d):
 
 def cholesky(a_init, b):
     a, d = decompose(a_init)
-    print('valid decomposition?', check(a, d))
+    print('valid decomposition?', check_decomposition(a, d))
     print('det(A) =', np.prod(d))
     z = direct_substitution(a, b)
     y = z / d
@@ -80,7 +86,6 @@ a_init = np.array([
 b = np.array([12, 38, 68])
 
 a_init, b = generate(5)
-
 x = cholesky(a_init, b)
 norm = np.sqrt(sum([i * i for i in a_init @ x - b]))
 print('norm(a_init @ x_chol - b) == 0?', norm < 1e-8)

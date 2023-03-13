@@ -1,6 +1,6 @@
 <script>
-import Form1 from './components/Form1.vue';
-import Form2 from './components/Form2.vue';
+import Form1 from './components/forms/Form1.vue';
+import Form2 from './components/forms/Form2.vue';
 
 export default {
   components: {
@@ -24,7 +24,24 @@ export default {
       this.codes = await Promise.all(results.map(result => result.text()));
       await Promise.all(this.modules.map(module => this.runner.loadPackage(module)));
       this.runner.runPython(this.codes[0]);
-      window.python = this.runner.runPython;
+
+      const hasEmptyCells = array => {
+        if (Array.isArray(array)) {
+          for (const subarray of array) {
+            if (hasEmptyCells(subarray)) return true;
+          }
+          return false;
+        }
+        return typeof array === 'number' && isNaN(array);
+      };
+
+      window.python = (code, args) => {
+        for (const arg of args) {
+          if (hasEmptyCells(arg)) return;
+          code = code.replace('?', Array.isArray(arg) ? `np.array(${JSON.stringify(arg)})` : arg);
+        }
+        return JSON.parse(this.runner.runPython(code));
+      };
       this.ready = true;
     };
     load();

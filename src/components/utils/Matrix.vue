@@ -1,7 +1,12 @@
 <script>
 export default {
-  props: ['modelValue', 'disabled', 'label'],
+  props: ['modelValue', 'label', 'disabled'],
   emits: ['update:modelValue'],
+  data() {
+    return {
+      matrix: JSON.parse(JSON.stringify(this.modelValue))
+    };
+  },
   computed: {
     rows() {
       return this.modelValue.length;
@@ -20,8 +25,18 @@ export default {
     },
     updateMatrix(i, j, value) {
       const matrix = JSON.parse(JSON.stringify(this.modelValue));
-      matrix[i][j] = parseInt(value);
+      matrix[i][j] = parseFloat(value);
       return matrix;
+    }
+  },
+  watch: {
+    modelValue(newModelValue) {
+      for (const row of newModelValue) {
+        for (const cell of row) {
+          if (isNaN(cell)) return;
+        }
+      }
+      this.matrix = JSON.parse(JSON.stringify(newModelValue));
     }
   }
 };
@@ -34,8 +49,10 @@ export default {
       <input
         v-for="[i, j] in cells()"
         type="number"
+        title=""
+        :class="{ wrong: isNaN(parseFloat(matrix[i][j])) }"
         :disabled="disabled"
-        :value="modelValue[i][j]"
+        v-model="matrix[i][j]"
         @input="$emit('update:modelValue', updateMatrix(i, j, $event.target.value))"
       />
     </div>
@@ -47,5 +64,9 @@ export default {
   display: grid;
   gap: .25rem;
   grid-template-columns: repeat(v-bind(cols), 1fr);
+}
+
+.wrong {
+  outline-color: var(--red);
 }
 </style>

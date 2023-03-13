@@ -6,6 +6,7 @@
   --black: #222;
   --white: #ddd;
   --green: #77b255;
+  --red: #c33;
 }
 
 html {
@@ -38,7 +39,7 @@ input {
   padding: .25rem;
   width: 3.25rem;
   height: 3.25rem;
-  font-size: 1rem;
+  font-size: .75rem;
   font-family: inherit;
   text-align: center;
   color: var(--black);
@@ -54,8 +55,8 @@ input::selection {
   background-color: var(--green);
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
@@ -65,4 +66,25 @@ article {
   flex-direction: column;
   align-items: center;
   gap: .5rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+}
+
+h1 {
+  margin-bottom: 1rem;
+  font-size: 3rem;
+  color: var(--green);
+  text-decoration: .1em dashed underline;
+  text-underline-offset: .25em;
+}
+
+.matrices {
+  display: flex;
+  gap: 3.75rem;
 }
