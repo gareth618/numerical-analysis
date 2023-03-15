@@ -14,8 +14,8 @@ def random_system(n):
     """generăm random matricea A și vectorul s, reprezentând o soluție a sistemului pe care dorim să-l creăm
     apoi, cunoscând A, s și că s este o soluție a sistemului Ax = b, determinăm b-ul drept As
     astfel, ne asigurăm că sistemul pe care-l generăm admite din start o soluție, și anume pe s"""
-    a = ...
-    s = ...
+    a = np.random.uniform(-99, 100, (n, n))
+    s = np.random.uniform(-99, 100, n)
     b = a @ s
     return a, b, s
 
@@ -33,8 +33,8 @@ def solve_system(a, b, decompose):
     return x
 
 def system_errors(a, b, x, s):
-    norm1 = ... # folosește A, b, x
-    norm2 = ... # folosește x, s
+    norm1 = np.linalg.norm(a @ x - b)
+    norm2 = np.linalg.norm(x - s) / np.linalg.norm(s)
     return norm1, norm2
 
 def inverse(a):
@@ -43,7 +43,10 @@ def inverse(a):
     return inv
 
 def random_symmetric_matrix(n):
-    a = ...
+    a = np.empty((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            a[i][j] = a[j][i] = np.random.uniform(-99, 100)
     return a
 
 def limit(a):
@@ -58,15 +61,15 @@ def test(n, generate_system):
     print('Q =', q)
     print('R =', r)
     x_hh = solve_system(a, b, householder)
-    x_qr = solve_system(a, b, ...)
+    x_qr = solve_system(a, b, np.linalg.qr)
     print('x_HH =', x_hh)
     print('x_QR =', x_qr)
-    print('norm(x_HH - x_QR) =', ...)
+    print('norm(x_HH - x_QR) =', np.linalg.norm(x_hh - x_qr))
     print('errors(x_HH) =', system_errors(a, b, x_hh, s))
     print('errors(x_QR) =', system_errors(a, b, x_qr, s))
     inv_a_hh = inverse(a)
-    inv_a_np = ...
-    print('norm(inv_A_HH, inv_A_NP) =', ...)
+    inv_a_np = np.linalg.inv(a)
+    print('norm(inv_A_HH - inv_A_NP) =', np.linalg.norm(inv_a_hh - inv_a_np))
     lim = limit(random_symmetric_matrix(n))
     print('lim =', lim)
 
