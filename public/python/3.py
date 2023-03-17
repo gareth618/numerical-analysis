@@ -91,6 +91,7 @@ def limit(a):
         if lim < EPS:
             break
         q, r = householder(r @ q)
+    print(r @ q)
     return lim
 
 def test(n, generate_system):
