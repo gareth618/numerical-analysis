@@ -1,5 +1,7 @@
 import numpy as np
 
+EPS = 1e-6
+
 def sample_system(_):
     a = np.array([
         [0, 0, 4],
@@ -16,15 +18,16 @@ def random_system(n):
     b = a @ s
     return a, b, s
 
-def householder(a_init, b_init):
+def householder(a_init, b_init=None):
     a = a_init.copy()
-    b = b_init.copy()
+    if b_init is not None:
+        b = b_init.copy()
     n = len(a)
     q_tilda = np.identity(n)
     u = np.empty(n)
     for r in range(n - 1):
         sigma = sum([a[i][r] ** 2 for i in range(r, n)])
-        if sigma <= 1e-6:
+        if sigma <= EPS:
             break
         k = np.sqrt(sigma)
         if a[r][r] > 0:
@@ -40,9 +43,10 @@ def householder(a_init, b_init):
         a[r][r] = k
         for i in range(r + 1, n):
             a[i][r] = 0
-        gamma = sum([u[i] * b[i] for i in range(r, n)]) / beta
-        for i in range(r, n):
-            b[i] -= gamma * u[i]
+        if b_init is not None:
+            gamma = sum([u[i] * b[i] for i in range(r, n)]) / beta
+            for i in range(r, n):
+                b[i] -= gamma * u[i]
         for j in range(n):
             gamma = sum([u[i] * q_tilda[i][j] for i in range(r, n)]) / beta
             for i in range(r, n):
@@ -81,28 +85,37 @@ def random_symmetric_matrix(n):
     return a
 
 def limit(a):
-    lim = ...
+    q, r = householder(a)
+    while True:
+        lim = np.linalg.norm(r @ q - q @ r)
+        if lim < EPS:
+            break
+        q, r = householder(r @ q)
     return lim
 
 def test(n, generate_system):
     a, b, s = generate_system(n)
     print('b =', b)
+    print()
     q, r = householder(a, b)
     print('Q =', q)
     print('R =', r)
+    print()
     x_hh = solve_system(q, r, b)
     x_qr = solve_system(*np.linalg.qr(a), b)
     print('x_HH =', x_hh)
     print('x_QR =', x_qr)
-    print('norm(x_HH - x_QR) =', np.linalg.norm(x_hh - x_qr))
-    print(b)
-    print('errors(x_HH) =', system_errors(a, b, x_hh, s))
-    print('errors(x_QR) =', system_errors(a, b, x_qr, s))
+    print('norm(x_HH - x_QR) == 0:', np.linalg.norm(x_hh - x_qr) < EPS)
+    print()
+    print('errors(x_HH) == 0:', system_errors(a, b, x_hh, s) < (EPS, EPS))
+    print('errors(x_QR) == 0:', system_errors(a, b, x_qr, s) < (EPS, EPS))
+    print()
     inv_a_hh = inverse(q, r)
     inv_a_np = np.linalg.inv(a)
     print('inv_A_HH =', inv_a_hh)
     print('inv_A_NP =', inv_a_np)
-    print('norm(inv_A_HH - inv_A_NP) =', np.linalg.norm(inv_a_hh - inv_a_np))
+    print('norm(inv_A_HH - inv_A_NP) == 0:', np.linalg.norm(inv_a_hh - inv_a_np) < EPS)
+    print()
     lim = limit(random_symmetric_matrix(n))
     print('lim =', lim)
 
