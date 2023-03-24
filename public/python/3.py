@@ -121,4 +121,4 @@ def test(n, generate_system):
     print('lim =', lim)
 
 test(3, sample_system)
-# test(5, random_system)
+test(5, random_system)
