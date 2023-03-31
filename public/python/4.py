@@ -1,11 +1,11 @@
 import numpy as np
-import urllib.request
+# import urllib.request
 
 class SparseMatrix:
     def __init__(self, n):
         self.n = n
         self.matrix = [{} for _ in range(n)]
-    
+
     def __str__(self):
         return str(self.matrix)
 
@@ -42,6 +42,12 @@ class SparseMatrix:
             delta_x = np.linalg.norm(np.array(x) - np.array(xp))
             k += 1
         if delta_x < 1e-6:
+            product = [0] * self.n
+            for i in range(self.n):
+                for j, val in self.matrix[i].items():
+                    product[i] += val * x[j]
+            norm = np.linalg.norm(np.array(product) - np.array(b), ord=np.inf)
+            print('norm(A @ xGS - b) = 0:', norm < 1e-6)
             return x
         else:
             return 'divergence'
@@ -52,9 +58,10 @@ def make_file_urls(index):
     return file_a, file_b
 
 def load_system(file_index):
-    file_a, file_b = make_file_urls(file_index)
+    # file_a, file_b = make_file_urls(file_index)
 
-    content_a = urllib.request.urlopen(file_a).read().decode('utf-8').split('\n')
+    # content_a = urllib.request.urlopen(file_a).read().decode('utf-8').split('\n')
+    content_a = open(f'a_{file_index + 1}.txt', 'r').read().split('\n')
     n = int(content_a[0])
     a = SparseMatrix(n)
     for line in content_a[1:]:
@@ -64,8 +71,9 @@ def load_system(file_index):
         i = int(val[1].strip())
         j = int(val[2].strip())
         a.add_element(i, j, x)
-    
-    content_b = urllib.request.urlopen(file_b).read().decode('utf-8').split('\n')
+
+    # content_b = urllib.request.urlopen(file_b).read().decode('utf-8').split('\n')
+    content_b = open(f'b_{file_index + 1}.txt', 'r').read().split('\n')
     b = [float(val) for val in content_b[1:] if len(val.strip()) > 0]
 
     return a, b
@@ -92,12 +100,14 @@ if __name__ == '__main__':
     x = [1, 2, 3, 4, 5]
     b = [6, 7, 8, 9, 1]
 
-    print(a.solve_system(b, x))
-    for i in range(file_count):
+    # print(a.solve_system(b, x))
+    # for i in range(file_count):
+    for i in range(1):
         a, b = load_system(i)
         if a.check_diagonal():
             x = a.solve_system(b)
             if x != 'divergence':
-                print(i + 1, np.linalg.norm(np.array(x) - np.array(make_solution[i](a.n))) < 1e-6)
+                norm = np.linalg.norm(np.array(x) - np.array(make_solution[i](a.n)))
+                print(f'[{i + 1}]', 'norm = 0:', norm < 1e-6)
             else:
-                print(i + 1, x)
+                print(f'[{i + 1}]', x)
