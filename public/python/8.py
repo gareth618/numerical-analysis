@@ -22,10 +22,9 @@ def secant_method(g):
         x1 = random.uniform(-100, 100)
 
     k = 0
-    kmax = 1000
     eps = 1e-5
     delta_x = 1
-    while eps <= abs(delta_x) <= 1e8 and k <= kmax:
+    while eps <= abs(delta_x) <= 1e8 and k <= 1000:
         gx1 = g(x1)
         denominator = gx1 - g(x0)
         if eps >= abs(denominator):
