@@ -1,48 +1,72 @@
 import math
+import cmath
 import random
 
-def sign(x):
-    return 1 if x >= 0 else -1
+def sign(z):
+    return z / abs(z)
 
-def horner(p, x0):
-    y0 = 0
-    for ai in p[::-1]:
-        y0 = ai + y0 * x0
-    return y0
+def horner(P, z):
+    c, d = z.real, z.imag
+    p, q = -2 * c, c ** 2 + d ** 2
+    a = P[::-1]
+    b = []
+    b += [a[0]]
+    b += [a[1] - p * b[0]]
+    for i in range(2, len(a)):
+        b += [a[i] - p * b[i - 1] - q * b[i - 2]]
+    r0 = b[-2]
+    r1 = b[-1] + p * b[-2]
+    C = r0 * c + r1
+    D = r0 * d
+    return complex(C, D)
 
-def derivative(p):
-    pp = []
-    for ai, i in enumerate(p[1:], 1):
-        pp += [ai * i]
-    return pp
+def derivative(P):
+    P1 = []
+    for ai, i in enumerate(P[1:], 1):
+        P1 += [ai * i]
+    return P1
 
-p = random.sample(range(-100, 100), 10)
-n = len(p) - 1
-pp = derivative(p)
-ppp = derivative(pp)
+def random_polynomial(n, value):
+    return [random.uniform(1, value) * (-1 if random.random() < .5 else +1) for _ in range(n + 1)]
 
-x = []
+EPS = 1e-3
+K_MAX = 100
+
+n = 5
+P = random_polynomial(n, 10)
+P1 = derivative(P)
+P2 = derivative(P1)
+print(P)
+
+B = max(abs(ai) for ai in P[:-1])
+C = max(abs(ai) for ai in P[1:])
+r = 1 / (1 + C / abs(P[0]))
+R = 1 + B / abs(P[-1])
+A = 2 / (R ** 2 - r ** 2)
+
+z = []
 k = 0
-k_max = 1000
 while True:
-    r = (abs(p[0]) + max(p[1:])) / abs(p[0])
-    xk = random.uniform(-r, r)
-    delta_xk = -1
+    theta = random.uniform(0, 2 * math.pi)
+    radius = math.sqrt(2 * random.random() / A + r ** 2)
+    zk = complex(radius * math.cos(theta), radius * math.sin(theta))
+
+    delta_zk = -1
     while True:
-        h_xk = (n - 1) ** 2 * horner(pp, xk) ** 2 - n * (n - 1) * horner(p, xk) * horner(ppp, xk)
-        if h_xk < 0: break
-        num = horner(pp, xk) + sign(horner(pp, xk)) * math.sqrt(h_xk)
-        if abs(num) < 1e-3: break
-        delta_xk = n * horner(p, xk) / num
-        xk -= delta_xk
-        if abs(delta_xk) < 1e-3 or k > k_max or abs(delta_xk) > 1e8: break
+        h_zk = (n - 1) ** 2 * horner(P1, zk) ** 2 - n * (n - 1) * horner(P, zk) * horner(P2, zk)
+        denominator = horner(P1, zk) + sign(horner(P1, zk)) * cmath.sqrt(h_zk)
+        if abs(denominator) < EPS: break
+        delta_zk = n * horner(P, zk) / denominator
+        zk -= delta_zk
+        if abs(delta_zk) < EPS or k > K_MAX or abs(delta_zk) > 1e8: break
         k += 1
-    if abs(delta_xk) < 1e-3:
+
+    if abs(delta_zk) < EPS:
         new = True
-        for xi in x:
-            if abs(xi - xk) < 1e-3:
+        for zi in z:
+            if abs(zi - zk) < EPS:
                 new = False
                 break
         if new:
-            print(xk, horner(p, xk))
-            x += [xk]
+            print(zk, abs(horner(P, zk)))
+            z += [zk]
