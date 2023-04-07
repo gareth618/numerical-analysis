@@ -1,7 +1,6 @@
 import urllib.request
 import random
 import numpy as np
-import scipy.linalg as la
 
 class SparseMatrix:
     def __init__(self, n):
@@ -37,13 +36,6 @@ class SparseMatrix:
                     self.matrix[i][j] = self.matrix[j][i] = self.matrix[i].setdefault(j, 0) + rand
         return self.matrix
 
-    def generate(self, p):
-        self.matrix = [[0] * self.n for _ in range(p)]
-        for i in range(p):
-            for j in range(self.n):
-                self.matrix[i][j] = random.uniform(-100, 100)
-        return self.matrix
-
     def product(self, x):
         p = [0] * self.n
         for i in range(self.n):
@@ -64,26 +56,6 @@ class SparseMatrix:
             k += 1
         return l, k
 
-    def svd_decomposition(self):
-        u, s, v = la.svd(self.matrix)
-        p = len(self.matrix)
-
-        print('singular values:', s)
-        print('rank:', len([i for i in s if i > 1e-9]))
-        print('condition number:', max(s) / min([i for i in s if i > 1e-9]))
-
-        si = [[0] * p for _ in range(self.n)]
-        for i in range(self.n):
-            si[i][i] = 1 / s[i]
-        si = np.array(si)
-        ai = v @ si @ np.transpose(u)
-        print('moore-penrose pseudoinverse:', ai)
-
-        b = np.random.uniform(-10, 10, size=(1, p))
-        x = ai @ b
-        print('solution:', x)
-        print('norm:', np.linalg.norm(b - a @ x))
-
 def make_file_url(dim):
     if dim in [512, 1024, 2023]:
         return f'https://profs.info.uaic.ro/~ancai/CN/lab/5/msr/m_rar_sim_2023_{dim}.txt'
@@ -103,16 +75,39 @@ def load_system(dim):
         matrix.add_element(i, j, x)
     return matrix
 
+def svd_decomposition(a):
+    p = len(a)
+    n = len(a[0])
+    u, s, vh = np.linalg.svd(a)
+
+    print('singular values:', s)
+    s = np.array([i for i in s if i > 1e-9])
+    r = len(s)
+    print('rank:', r)
+    print('condition number:', max(s) / min(s))
+
+    si = np.pad(np.diag(np.ones((r,)) / s), [(0, n - r), (0, p - n)])
+    ai = np.transpose(vh) @ si @ np.transpose(u)
+    print('moore-penrose pseudoinverse:', ai)
+
+    b = np.random.rand(p,)
+    x = ai @ b
+    print('solution:', x)
+    print('norm(b - ax):', np.linalg.norm(b - a @ x, ord=2))
+
+    at = np.transpose(a)
+    aj = np.linalg.inv(at @ a) @ at
+    print('norm(aj - ai):', np.linalg.norm(ai - aj, ord=1))
+
 if __name__ == '__main__':
-    # for dim in [512, 1024]: # 2023
-    #     a = load_system(dim)
-    #     print(dim, a.check_symmetry(), a.power_method())
+    for dim in [512, 1024, 2023]:
+        a = load_system(dim)
+        print(dim, a.check_symmetry(), a.power_method())
 
-    # n = 1000
-    # b = SparseMatrix(n)
-    # b.generate_symmetric()
-    # print(n, b.check_symmetry(), b.power_method())
+    n = 1000
+    b = SparseMatrix(n)
+    b.generate_symmetric()
+    print(n, b.check_symmetry(), b.power_method())
 
-    a = SparseMatrix(100)
-    a.generate(120)
-    a.svd_decomposition()
+    a = np.random.rand(4, 3)
+    svd_decomposition(a)
