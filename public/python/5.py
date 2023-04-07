@@ -9,15 +9,19 @@ class SparseMatrix:
 
     def __str__(self):
         return str(self.matrix)
-
+    
     def add_element(self, i, j, x):
         self.matrix[i][j] = self.matrix[i].setdefault(j, 0) + x
 
-    def check_diagonal(self):
-        for i, row in enumerate(self.matrix):
-            if i not in row:
-                return False
-        return True
+    def dict_to_list(self):
+        self.values = []
+        self.column = []
+        self.start_row = [0]
+        for i in range(self.n):
+            for j, val in self.matrix[i].items():
+                self.values += [val]
+                self.column += [j]
+            self.start_row += [self.start_row[-1] + len(self.matrix[i])]
 
     def check_symmetry(self):
         for i in range(self.n):
@@ -26,11 +30,11 @@ class SparseMatrix:
                     return False
         return True
 
-    def generate_symmetric(self):
+    def generate(self, chance):
         self.matrix = [{} for _ in range(self.n)]
         for i in range(self.n):
             for j in range(self.n):
-                dice = random.randint(0, 99)
+                dice = random.randint(0, chance)
                 if dice == 0:
                     rand = random.randint(0, 10000)
                     self.matrix[i][j] = self.matrix[j][i] = self.matrix[i].setdefault(j, 0) + rand
@@ -41,17 +45,26 @@ class SparseMatrix:
         for i in range(self.n):
             for j, val in self.matrix[i].items():
                 p[i] += val * x[j]
-        return p
+        return np.array(p)
 
-    def power_method(self):
+    def product2(self, x):
+        p = [0] * self.n
+        for i in range(self.n):
+            for j, col in enumerate(self.column[self.start_row[i]:self.start_row[i + 1]]):
+                p[i] += self.values[j + self.start_row[i]] * x[col]
+        return np.array(p)
+
+    def power_method(self, prod=1):
+        if prod != 1:
+            self.dict_to_list()
         x = np.random.uniform(-10, 10, size=(self.n,))
         v = x / np.linalg.norm(x)
-        w = np.array(self.product(v))
+        w = self.product(v) if prod == 1 else self.product2(v)
         l = w @ v
         k = 0
         while np.linalg.norm(w - l * v) > self.n * 1e-9 and k <= 1000000:
             v = w / np.linalg.norm(w)
-            w = np.array(self.product(v))
+            w = self.product(v) if prod == 1 else self.product2(v)
             l = w @ v
             k += 1
         return l, k
@@ -100,14 +113,22 @@ def svd_decomposition(a):
     print('norm(aj - ai):', np.linalg.norm(ai - aj, ord=1))
 
 if __name__ == '__main__':
-    for dim in [512, 1024, 2023]:
+    for dim in [512, 1024]: # 2023
         a = load_system(dim)
-        print(dim, a.check_symmetry(), a.power_method())
+        print(dim, 'symmetric' if a.check_symmetry() else 'asymmetric')
+        l, k = a.power_method() 
+        print('lambda:', l, '| k:', k)
+        l, k = a.power_method(prod=2) 
+        print('lambda:', l, '| k:', k)
 
-    n = 1000
+    n = 800
     b = SparseMatrix(n)
-    b.generate_symmetric()
-    print(n, b.check_symmetry(), b.power_method())
+    b.generate(10)
+    print(n, 'symmetric' if b.check_symmetry() else 'asymmetric')
+    l, k = b.power_method() 
+    print('lambda:', l, '| k:', k)
+    l, k = b.power_method(prod=2) 
+    print('lambda:', l, '| k:', k)
 
     a = np.random.rand(4, 3)
     svd_decomposition(a)
