@@ -84,6 +84,10 @@ h1 {
   text-underline-offset: .25em;
 }
 
+ol > li::marker {
+  color: var(--green);
+}
+
 .matrices {
   display: flex;
   gap: 3.75rem;

@@ -1,10 +1,10 @@
 <script>
-import Dimension from '../utils/Dimension.vue';
+import Number from '../utils/Number.vue';
 import Matrix from '../utils/Matrix.vue';
 
 export default {
   components: {
-    Dimension,
+    Number,
     Matrix
   },
   data() {
@@ -46,7 +46,7 @@ export default {
 <template>
   <main>
     <h1>Tema #1</h1>
-    <Dimension v-model="dimension" label="Dimension" :min="2" :max="8" />
+    <Number v-model="dimension" label="Dimension" :min="2" :max="8" />
     <div class="matrices">
       <Matrix v-model="matrix1" label="Matrix #1" />
       <Matrix v-model="matrix2" label="Matrix #2" />

@@ -9,7 +9,7 @@ class SparseMatrix:
 
     def __str__(self):
         return str(self.matrix)
-    
+
     def add_element(self, i, j, x):
         self.matrix[i][j] = self.matrix[i].setdefault(j, 0) + x
 
@@ -116,19 +116,21 @@ if __name__ == '__main__':
     for dim in [512, 1024]: # 2023
         a = load_system(dim)
         print(dim, 'symmetric' if a.check_symmetry() else 'asymmetric')
-        l, k = a.power_method() 
-        print('lambda:', l, '| k:', k)
-        l, k = a.power_method(prod=2) 
-        print('lambda:', l, '| k:', k)
+        l, k = a.power_method()
+        print(f'lambda: {l} | k: {k}')
+        l, k = a.power_method(prod=2)
+        print(f'lambda: {l} | k: {k}')
+        print()
 
     n = 800
     b = SparseMatrix(n)
     b.generate(10)
     print(n, 'symmetric' if b.check_symmetry() else 'asymmetric')
-    l, k = b.power_method() 
-    print('lambda:', l, '| k:', k)
-    l, k = b.power_method(prod=2) 
-    print('lambda:', l, '| k:', k)
+    l, k = b.power_method()
+    print(f'lambda: {l} | k: {k}')
+    l, k = b.power_method(prod=2)
+    print(f'lambda: {l} | k: {k}')
+    print()
 
     a = np.random.rand(4, 3)
     svd_decomposition(a)

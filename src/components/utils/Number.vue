@@ -4,12 +4,12 @@ export default {
   emits: ['update:modelValue'],
   data() {
     return {
-      dimension: this.modelValue
+      number: this.modelValue
     };
   },
   watch: {
-    dimension(newDimension) {
-      this.$emit('update:modelValue', Math.min(Math.max(Math.floor(newDimension) || 0, this.min), this.max));
+    number(newNumber) {
+      this.$emit('update:modelValue', Math.min(Math.max(Math.floor(newNumber) || 0, this.min), this.max));
     }
   }
 };
@@ -18,6 +18,6 @@ export default {
 <template>
   <article>
     <label>{{ label }}</label>
-    <input v-model="dimension" type="number" title="" :min="min" :max="max" />
+    <input v-model="number" type="number" title="" :min="min" :max="max" />
   </article>
 </template>

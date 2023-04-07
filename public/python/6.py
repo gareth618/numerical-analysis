@@ -2,11 +2,11 @@ import math
 import random
 import numpy as np
 import scipy.linalg as la
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
 examples = [
-    [1, 5, lambda x: x ** 2 - 12 * x + 30, 2],
+    [1, 5, lambda x: x ** 2 - 12 * x + 30, 1],
     [0, 1.5, lambda x: math.sin(x) - math.cos(x), 2],
     [0, 2, lambda x: 2 * x ** 3 - 3 * x + 15, 3]
 ]
@@ -29,6 +29,7 @@ def sample_nodes(x0, xn, n, f):
     return x_float, [f(x) for x in x_float]
 
 def lagrange(x, y, x_test):
+    n = len(x) - 1
     aitken = []
     for i in range(n + 1):
         aitken += [[0] * i + [y[i]] + [0] * (n - i)]
@@ -44,6 +45,7 @@ def lagrange(x, y, x_test):
 
 def lagrange_optimized(x, y, x_test):
     # aitken[i][j] -> aitken[j - i + 1][i]
+    n = len(x) - 1
     aitken = [[0] * (n + 1), [*y]]
     index = 1
     y_test = aitken[index][0]
@@ -72,34 +74,72 @@ def horner(a, x_test):
         y_test = ai + y_test * x_test
     return y_test
 
-n, i = read_n_i()
-x0, xn, f, m = examples[i]
-x, y = sample_nodes(x0, xn, n, f)
-x_test = random.uniform(x0, xn)
+def interpolate(i, n):
+    x0, xn, f, m = examples[i]
+    x, y = sample_nodes(x0, xn, n, f)
+    a_least_squares = least_squares(x, y, m)
 
-print('x:', x)
-print('y:', y)
-y_test_lagrange = lagrange_optimized(x, y, x_test)
-print(x_test, y_test_lagrange, abs(y_test_lagrange - f(x_test)))
-a_least_squares = least_squares(x, y, m)
-print(x_test, abs(horner(a_least_squares, x_test) - f(x_test)), sum([abs(horner(a_least_squares, xi) - f(xi)) for xi in x]))
+    x0 = 0
+    xn = 10
 
-x0 = 0
-xn = 10
+    fx, fy = [], []
+    xi = x0
+    while xi <= xn:
+        fx += [xi]
+        fy += [f(xi)]
+        xi += .01
 
-lx, ly = [], []
-xi = x0
-while xi <= xn:
-    lx += [xi]
-    ly += [lagrange_optimized(x, y, xi)]
-    xi += .01
-plt.plot(lx, ly)
+    lx, ly = [], []
+    xi = x0
+    while xi <= xn:
+        lx += [xi]
+        ly += [lagrange_optimized(x, y, xi)]
+        xi += .01
 
-px, py = [], []
-xi = x0
-while xi <= xn:
-    px += [xi]
-    py += [horner(a_least_squares, xi)]
-    xi += .01
-plt.plot(px, py)
-plt.show()
+    px, py = [], []
+    xi = x0
+    while xi <= xn:
+        px += [xi]
+        py += [horner(a_least_squares, xi)]
+        xi += .01
+    return [fx, fy, lx, ly, px, py]
+
+# n, i = read_n_i()
+# x0, xn, f, m = examples[i]
+# x, y = sample_nodes(x0, xn, n, f)
+# x_test = random.uniform(x0, xn)
+
+# print('x:', x)
+# print('y:', y)
+# y_test_lagrange = lagrange_optimized(x, y, x_test)
+# print(x_test, y_test_lagrange, abs(y_test_lagrange - f(x_test)))
+# a_least_squares = least_squares(x, y, m)
+# print(x_test, abs(horner(a_least_squares, x_test) - f(x_test)), sum([abs(horner(a_least_squares, xi) - f(xi)) for xi in x]))
+
+# x0 = 0
+# xn = 10
+
+# fx, fy = [], []
+# xi = x0
+# while xi <= xn:
+#     fx += [xi]
+#     fy += [f(xi) - 1]
+#     xi += .01
+# plt.plot(lx, ly)
+
+# lx, ly = [], []
+# xi = x0
+# while xi <= xn:
+#     lx += [xi]
+#     ly += [lagrange_optimized(x, y, xi) - .5]
+#     xi += .01
+# plt.plot(lx, ly)
+
+# px, py = [], []
+# xi = x0
+# while xi <= xn:
+#     px += [xi]
+#     py += [horner(a_least_squares, xi)]
+#     xi += .01
+# plt.plot(px, py)
+# plt.show()

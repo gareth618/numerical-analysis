@@ -1,5 +1,5 @@
 <script>
-import Dimension from '../utils/Dimension.vue';
+import Number from '../utils/Number.vue';
 import Matrix from '../utils/Matrix.vue';
 import RowVector from '../utils/RowVector.vue';
 import ColVector from '../utils/ColVector.vue';
@@ -13,7 +13,7 @@ const exampleS = [3, 2, 1];
 
 export default {
   components: {
-    Dimension,
+    Number,
     Matrix,
     RowVector,
     ColVector
@@ -55,7 +55,7 @@ export default {
 <template>
   <main>
     <h1>Tema #3</h1>
-    <Dimension v-model="dimension" label="Dimension" :min="2" :max="8" />
+    <Number v-model="dimension" label="Dimension" :min="2" :max="8" />
     <div class="matrices">
       <Matrix v-model="a" label="A" />
       <ColVector v-model="s" label="s" />
