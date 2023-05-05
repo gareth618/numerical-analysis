@@ -1,4 +1,4 @@
-import urllib.request
+# import urllib.request
 import random
 import numpy as np
 
@@ -62,31 +62,38 @@ class SparseMatrix:
         w = self.product(v) if prod == 1 else self.product2(v)
         l = w @ v
         k = 0
-        while np.linalg.norm(w - l * v) > self.n * 1e-9 and k <= 1000000:
+        while np.linalg.norm(w - l * v) > self.n * 1e-9 and k <= 100000:
             v = w / np.linalg.norm(w)
             w = self.product(v) if prod == 1 else self.product2(v)
             l = w @ v
             k += 1
         return l, k
 
+    def to_full(self):
+        a = np.zeros((self.n, self.n))
+        for i in range(self.n):
+            for j, val in self.matrix[i].items():
+                a[i][j] = val
+        return a
+
 def make_file_url(dim):
     if dim in [512, 1024, 2023]:
         return f'https://profs.info.uaic.ro/~ancai/CN/lab/5/msr/m_rar_sim_2023_{dim}.txt'
     return None
 
-def load_system(dim):
-    file = make_file_url(dim)
-    content = urllib.request.urlopen(file).read().decode('utf-8').split('\n')
-    n = int(content[0])
-    matrix = SparseMatrix(n)
-    for line in content[1:]:
-        val = line.split(',')
-        if len(val) != 3: continue
-        x = float(val[0].strip())
-        i = int(val[1].strip())
-        j = int(val[2].strip())
-        matrix.add_element(i, j, x)
-    return matrix
+# def load_system(dim):
+#     file = make_file_url(dim)
+#     content = urllib.request.urlopen(file).read().decode('utf-8').split('\n')
+#     n = int(content[0])
+#     matrix = SparseMatrix(n)
+#     for line in content[1:]:
+#         val = line.split(',')
+#         if len(val) != 3: continue
+#         x = float(val[0].strip())
+#         i = int(val[1].strip())
+#         j = int(val[2].strip())
+#         matrix.add_element(i, j, x)
+#     return matrix
 
 def svd_decomposition(a):
     p = len(a)
@@ -112,25 +119,56 @@ def svd_decomposition(a):
     aj = np.linalg.inv(at @ a) @ at
     print('norm(aj - ai):', np.linalg.norm(ai - aj, ord=1))
 
-if __name__ == '__main__':
-    for dim in [512, 1024]: # 2023
-        a = load_system(dim)
-        print(dim, 'symmetric' if a.check_symmetry() else 'asymmetric')
-        l, k = a.power_method()
-        print(f'lambda: {l} | k: {k}')
-        l, k = a.power_method(prod=2)
-        print(f'lambda: {l} | k: {k}')
-        print()
+# if __name__ == '__main__':
+#     for dim in [512, 1024]: # 2023
+#         a = load_system(dim)
+#         print(dim, 'symmetric' if a.check_symmetry() else 'asymmetric')
+#         l, k = a.power_method()
+#         print(f'lambda: {l} | k: {k}')
+#         l, k = a.power_method(prod=2)
+#         print(f'lambda: {l} | k: {k}')
+#         print()
 
-    n = 800
-    b = SparseMatrix(n)
-    b.generate(10)
-    print(n, 'symmetric' if b.check_symmetry() else 'asymmetric')
-    l, k = b.power_method()
-    print(f'lambda: {l} | k: {k}')
-    l, k = b.power_method(prod=2)
-    print(f'lambda: {l} | k: {k}')
-    print()
+#     n = 800
+#     b = SparseMatrix(n)
+#     b.generate(10)
+#     print(n, 'symmetric' if b.check_symmetry() else 'asymmetric')
+#     l, k = b.power_method()
+#     print(f'lambda: {l} | k: {k}')
+#     l, k = b.power_method(prod=2)
+#     print(f'lambda: {l} | k: {k}')
+#     print()
 
-    a = np.random.rand(4, 3)
-    svd_decomposition(a)
+#     a = np.random.rand(4, 3)
+#     svd_decomposition(a)
+
+def first_task(n):
+    a_sparse = SparseMatrix(n)
+    a_sparse.generate(10)
+    eigenvalue, _ = a_sparse.power_method()
+    a = a_sparse.to_full()
+    return [a.tolist(), eigenvalue]
+
+def second_task(m, n):
+    a = np.random.rand(m, n)
+    p = len(a)
+    n = len(a[0])
+    u, s, vh = np.linalg.svd(a)
+
+    singular_values = s.copy()
+    s = np.array([i for i in s if i > 1e-9])
+    rank = len(s)
+    condition_number = max(s) / min(s)
+
+    si = np.pad(np.diag(np.ones((rank,)) / s), [(0, n - rank), (0, p - n)])
+    moore_penrose_pseudoinverse = np.transpose(vh) @ si @ np.transpose(u)
+
+    b = np.random.rand(p,)
+    solution = moore_penrose_pseudoinverse @ b
+    norm_b_minus_ax = np.linalg.norm(b - a @ solution, ord=2)
+
+    at = np.transpose(a)
+    aj = np.linalg.inv(at @ a) @ at
+    norm_aj_minus_ai = np.linalg.norm(moore_penrose_pseudoinverse - aj, ord=1)
+
+    return [a.tolist(), singular_values.tolist(), rank, condition_number, moore_penrose_pseudoinverse.tolist(), solution.tolist(), norm_b_minus_ax, norm_aj_minus_ai]
