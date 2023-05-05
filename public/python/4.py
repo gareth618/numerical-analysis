@@ -1,5 +1,5 @@
 import numpy as np
-import urllib.request
+# import urllib.request
 from copy import deepcopy
 
 class SparseMatrix:
@@ -78,34 +78,34 @@ def make_file_urls(index):
     file_b = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/b_{index + 1}.txt'
     return file_a, file_b
 
-def load_sparse_matrix(file):
-    content_a = urllib.request.urlopen(file).read().decode('utf-8').split('\n')
-    n = int(content_a[0])
-    a = SparseMatrix(n)
-    for line in content_a[1:]:
-        val = line.split(',')
-        if len(val) != 3: continue
-        x = float(val[0].strip())
-        i = int(val[1].strip())
-        j = int(val[2].strip())
-        a.add_element(i, j, x)
-    return a
+# def load_sparse_matrix(file):
+#     content_a = urllib.request.urlopen(file).read().decode('utf-8').split('\n')
+#     n = int(content_a[0])
+#     a = SparseMatrix(n)
+#     for line in content_a[1:]:
+#         val = line.split(',')
+#         if len(val) != 3: continue
+#         x = float(val[0].strip())
+#         i = int(val[1].strip())
+#         j = int(val[2].strip())
+#         a.add_element(i, j, x)
+#     return a
 
-def load_system(file_index):
-    file_a, file_b = make_file_urls(file_index)
-    a = load_sparse_matrix(file_a)
-    content_b = urllib.request.urlopen(file_b).read().decode('utf-8').split('\n')
-    b = [float(val) for val in content_b[1:] if len(val.strip()) > 0]
-    return a, b
+# def load_system(file_index):
+#     file_a, file_b = make_file_urls(file_index)
+#     a = load_sparse_matrix(file_a)
+#     content_b = urllib.request.urlopen(file_b).read().decode('utf-8').split('\n')
+#     b = [float(val) for val in content_b[1:] if len(val.strip()) > 0]
+#     return a, b
 
-def test_addition():
-    file_a = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/a.txt'
-    file_b = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/b.txt'
-    file_s = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/aplusb.txt'
-    a = load_sparse_matrix(file_a)
-    b = load_sparse_matrix(file_b)
-    s = load_sparse_matrix(file_s)
-    print('a + b = s:', a + b == s)
+# def test_addition():
+#     file_a = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/a.txt'
+#     file_b = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/b.txt'
+#     file_s = f'https://profs.info.uaic.ro/~ancai/CN/lab/4/sislinrar/aplusb.txt'
+#     a = load_sparse_matrix(file_a)
+#     b = load_sparse_matrix(file_b)
+#     s = load_sparse_matrix(file_s)
+#     print('a + b = s:', a + b == s)
 
 if __name__ == '__main__':
     file_count = 5
@@ -140,4 +140,14 @@ if __name__ == '__main__':
     #         else:
     #             print(f'[{i + 1}]', x)
 
-    test_addition()
+    # test_addition()
+
+def random_system(n):
+    a = np.random.uniform(-99, 100, (n, n))
+    s = np.random.uniform(-99, 100, n)
+    b = a @ s
+    return a, b
+
+def solve_system(a, b):
+    sol = SparseMatrix.compress(a).solve_system(b)
+    return np.array([] if sol == 'divergence' else sol)
