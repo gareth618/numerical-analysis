@@ -5,6 +5,7 @@ import Form3 from './components/forms/Form3.vue';
 import Form4 from './components/forms/Form4.vue';
 import Form5 from './components/forms/Form5.vue';
 import Form6 from './components/forms/Form6.vue';
+import Form7 from './components/forms/Form7.vue';
 
 export default {
   components: {
@@ -13,7 +14,8 @@ export default {
     Form3,
     Form4,
     Form5,
-    Form6
+    Form6,
+    Form7
   },
   data() {
     return {
@@ -21,7 +23,7 @@ export default {
       codes: [],
       ready: false,
       currentForm: 0,
-      forms: [1, 2, 3, 4, 5, 6],
+      forms: [1, 2, 3, 4, 5, 6, 7],
       modules: ['numpy', 'scipy']
     };
   },
@@ -71,6 +73,7 @@ export default {
   <Form4 v-else-if="currentForm == 3" />
   <Form5 v-else-if="currentForm == 4" />
   <Form6 v-else-if="currentForm == 5" />
+  <Form7 v-else-if="currentForm == 6" />
   <button class="python" @click="nextForm">
     <img src="https://abs-0.twimg.com/emoji/v2/svg/1f40d.svg" alt="python" />
   </button>

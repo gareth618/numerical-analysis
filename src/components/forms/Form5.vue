@@ -40,9 +40,9 @@ export default {
       <Number v-model="n" label="Cols" :min="2" :max="8" />
     </div>
     <Matrix v-model="info2[0]" label="A" :disabled="true" />
-    <RowVector v-model="info2[1]" label="singular values" :disabled="true" />
-    <p>rank: {{ info2[2] }}</p>
-    <p>condition number: {{ info2[3] }}</p>
+    <RowVector v-model="info2[1]" label="Singular values" :disabled="true" />
+    <p>Rank: {{ info2[2] }}</p>
+    <p>Condition number: {{ info2[3] }}</p>
     <Matrix v-model="info2[4]" label="Moore-Penrose pseudoinverse" :disabled="true" />
     <RowVector v-model="info2[5]" label="x" :disabled="true" />
     <p>norm(b - ax): {{ info2[6] }}</p>
