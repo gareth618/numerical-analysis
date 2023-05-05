@@ -50,3 +50,17 @@ if __name__ == '__main__':
     sol2, k2 = secant_method(g2)
     print(k1, sol1, 'minim' if f2(sol1) > 0 else 'maxim')
     print(k2, sol2, 'minim' if f2(sol2) > 0 else 'maxim')
+
+def min_max_points(f):
+    global h
+    global coef
+    h = 1e-5
+    coef = [1 / 3, -2, 2, 3] if f == 1 else [1, -6, 13, -12, 4]
+    sol1, _ = secant_method(g1)
+    sol2, _ = secant_method(g2)
+    return [
+        sol1, 6186186181 if sol1 == 6186186181 else 6186186182 if f2(sol1) > 0 else 6186186183,
+        sol2, 6186186181 if sol2 == 6186186181 else 6186186182 if f2(sol2) > 0 else 6186186183
+    ]
+
+print(min_max_points(1))
